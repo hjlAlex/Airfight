@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "checkbox_select_disabled_png,checkbox_select_down_png,checkbox_select_up_png,checkbox_unselect_png,selected_png,border_png,header_png,radiobutton_select_disabled_png,radiobutton_select_down_png,radiobutton_select_up_png,radiobutton_unselect_png,roundthumb_png,thumb_png,track_png,tracklight_png,handle_png,off_png,on_png,button_down_png,button_up_png,thumb_pb_png,track_pb_png,track_sb_png,bg_jpg,egret_icon_png,description_json",
+			"keys": "checkbox_select_disabled_png,checkbox_select_down_png,checkbox_select_up_png,checkbox_unselect_png,selected_png,border_png,header_png,radiobutton_select_disabled_png,radiobutton_select_down_png,radiobutton_select_up_png,radiobutton_unselect_png,roundthumb_png,thumb_png,track_png,tracklight_png,handle_png,off_png,on_png,button_down_png,button_up_png,thumb_pb_png,track_pb_png,track_sb_png,egret_icon_png,description_json,bg_jpg,enemy_bullet_png,my_bullet_png,restart_png,bgGrey_png,bloodBar_png,bloodBarBg_png,boss_png,btn_start_png,buff_blood_png,my_airfight_png,enemy_aifight_png",
 			"name": "preload"
 		}
 	],
@@ -122,11 +122,6 @@
 			"name": "track_sb_png"
 		},
 		{
-			"url": "assets/bg.jpg",
-			"type": "image",
-			"name": "bg_jpg"
-		},
-		{
 			"url": "assets/egret_icon.png",
 			"type": "image",
 			"name": "egret_icon_png"
@@ -135,6 +130,66 @@
 			"name": "description_json",
 			"type": "json",
 			"url": "config/description.json"
+		},
+		{
+			"name": "bg_jpg",
+			"type": "image",
+			"url": "assets/GameImage/bg.jpg"
+		},
+		{
+			"name": "enemy_bullet_png",
+			"type": "image",
+			"url": "assets/GameImage/enemy_bullet.png"
+		},
+		{
+			"name": "my_bullet_png",
+			"type": "image",
+			"url": "assets/GameImage/my_bullet.png"
+		},
+		{
+			"name": "restart_png",
+			"type": "image",
+			"url": "assets/GameImage/restart.png"
+		},
+		{
+			"name": "bgGrey_png",
+			"type": "image",
+			"url": "assets/GameImage/bgGrey.png"
+		},
+		{
+			"name": "bloodBar_png",
+			"type": "image",
+			"url": "assets/GameImage/bloodBar.png"
+		},
+		{
+			"name": "bloodBarBg_png",
+			"type": "image",
+			"url": "assets/GameImage/bloodBarBg.png"
+		},
+		{
+			"name": "boss_png",
+			"type": "image",
+			"url": "assets/GameImage/boss.png"
+		},
+		{
+			"name": "btn_start_png",
+			"type": "image",
+			"url": "assets/GameImage/btn_start.png"
+		},
+		{
+			"name": "buff_blood_png",
+			"type": "image",
+			"url": "assets/GameImage/buff_blood.png"
+		},
+		{
+			"name": "my_airfight_png",
+			"type": "image",
+			"url": "assets/GameImage/my_airfight.png"
+		},
+		{
+			"name": "enemy_aifight_png",
+			"type": "image",
+			"url": "assets/GameImage/enemy_aifight.png"
 		}
 	]
 }

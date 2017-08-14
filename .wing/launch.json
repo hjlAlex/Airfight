@@ -18,6 +18,7 @@
 			"type": "chrome",
 			"request": "launch",
 			"file": "index.html",
+			"runtimeExecutable": "C:/Users/Administrator/AppData/Local/Google/Chrome/Application/chrome.exe",
 			"useBuildInServer": true,
 			"sourceMaps": true,
 			"webRoot": "${workspaceRoot}",
