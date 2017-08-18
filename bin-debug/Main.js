@@ -66,8 +66,8 @@ var Main = (function (_super) {
         RES.removeEventListener(RES.ResourceEvent.CONFIG_COMPLETE, this.onConfigComplete, this);
         // load skin theme configuration file, you can manually modify the file. And replace the default skin.
         //加载皮肤主题配置文件,可以手动修改这个文件。替换默认皮肤。
-        var theme = new eui.Theme("resource/default.thm.json", this.stage);
-        theme.addEventListener(eui.UIEvent.COMPLETE, this.onThemeLoadComplete, this);
+        this.theme = new eui.Theme("resource/default.thm.json", this.stage);
+        this.theme.addEventListener(eui.UIEvent.COMPLETE, this.onThemeLoadComplete, this);
         RES.addEventListener(RES.ResourceEvent.GROUP_COMPLETE, this.onResourceLoadComplete, this);
         RES.addEventListener(RES.ResourceEvent.GROUP_LOAD_ERROR, this.onResourceLoadError, this);
         RES.addEventListener(RES.ResourceEvent.GROUP_PROGRESS, this.onResourceProgress, this);
@@ -79,6 +79,7 @@ var Main = (function (_super) {
      * Loading of theme configuration file is complete, start to pre-load the
      */
     Main.prototype.onThemeLoadComplete = function () {
+        this.theme.removeEventListener(eui.UIEvent.COMPLETE, this.onThemeLoadComplete, this);
         this.isThemeLoadEnd = true;
         this.createScene();
     };
