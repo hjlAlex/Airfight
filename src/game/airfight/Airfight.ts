@@ -18,7 +18,7 @@ module game.airfight {
         /**定时射*/
         private fireTimer:egret.Timer;
         /**飞机默认生命值*/
-        private blood:number = 10;
+        private blood:number;
 		/**飞机满血状态时生命值 */
 		private fullBlood:number;
 		/**飞机的血条 */
@@ -71,13 +71,25 @@ module game.airfight {
 			
 			if(this.airType == game.airfight.Airfight.TYPE_ME_AIRFIGHT){
 				let bullet:egret.Bitmap;
-				for(let i:number=0;i<2;i++) {
+				for(let i:number=0;i<3;i++) {
                     bullet = game.bullet.Bullet.produce(game.bullet.Bullet.TYPE_ME_BULLET);
-                    bullet.x = i==0?(this.x):(this.x+this.width-28);
-                    bullet.y = this.y+30;                    
+                    if(i == 0){
+						bullet.x = this.x;
+						bullet.y = this.y+30;
+					}else if(i == 1){
+						bullet.x = this.x+65;
+						bullet.y = this.y;
+					}else {
+						bullet.x = this.x+this.width-28
+                    	bullet.y = this.y+30; 
+					}
+					                   
                     gameContainer.addChild(bullet);					
                     gameContainer.addBullet(game.bullet.Bullet.TYPE_ME_BULLET,bullet);
                 }
+				/**子弹发出音效 */
+				let bulletMusic:egret.Sound = RES.getRes("effcet_mybullet_mp3");
+				bulletMusic.play(0,1);
 			}else{
 				let bullet:egret.Bitmap;
 				bullet = game.bullet.Bullet.produce(game.bullet.Bullet.TYPE_ENEMY_BULLET);
@@ -103,8 +115,9 @@ module game.airfight {
 
 		public resetBlood(blood:number){
 			this.blood = blood;
-			this.fullBlood = blood;//该值初始化后不能改变
-					
+			this.fullBlood = blood;//该值初始化后不能改变			
+			this.bloodBar.reset();	
+			
 		}
 
 		public getFullBlood():number {
