@@ -10,6 +10,7 @@ module game.bullet {
 
 		/**敌方子弹对象池 */
 		private static cacheEnemyBullet:egret.Bitmap[] = [];
+		
 
 		/**生产*/
         public static produce(type:number):egret.Bitmap {
@@ -27,7 +28,7 @@ module game.bullet {
                 bullet = cacheObj.pop();
             } else {
                 bullet = game.util.GameUtil.createBitmapByName(bulletName);
-				bullet.name = bulletName;
+				bullet.name = bulletName;				
             }
             return bullet;
         }

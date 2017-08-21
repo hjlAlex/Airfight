@@ -12,6 +12,11 @@ module game {
 
 		/**可滚动背景*/
         private bg:game.bg.BgMap;
+		 
+
+		/**背景音乐 */
+		private bgMusic:egret.Sound;
+		private bgMusicChannel:egret.SoundChannel;
 
 		/**开始按钮*/
         private btnStart:egret.Bitmap;			
@@ -34,6 +39,8 @@ module game {
 
         /**敌人的子弹*/
         public enemyBullets:egret.Bitmap[] = [];
+
+		private dieimages:egret.Bitmap[] = [];
 
 		/**成绩显示*/
         private scorePanel:game.airfight.ScorePanel;
@@ -62,6 +69,10 @@ module game {
 			//背景
             this.bg = new game.bg.BgMap();//创建可滚动的背景
             this.addChild(this.bg);
+
+			//背景音乐
+			this.bgMusic = RES.getRes("bg_music");
+			
 
 			//开始按钮
             this.btnStart = game.util.GameUtil.createBitmapByName("btn_start_png");
@@ -92,6 +103,8 @@ module game {
 			if(this.scorePanel.parent == this){
 				this.removeChild(this.scorePanel);
 			}
+			/**背景音乐响起 */
+			this.bgMusicChannel = this.bgMusic.play();
 			/**重置计分 */
 			this.myScore = 0;
 			if(this.contains(this.btnStart)){
@@ -223,6 +236,7 @@ module game {
 			//console.log("我方血量:"+this.myAirfight.getBlood());
 			//console.log("敌方飞机数量:"+this.enemyAirfights.length);
 			
+			
 		}
 
 		public addBullet(type:number,bullet:egret.Bitmap):void {
@@ -241,6 +255,13 @@ module game {
             enemyAir.fire();
             this.addChild(enemyAir);
             this.enemyAirfights.push(enemyAir);
+
+			while(this.dieimages.length>0) {
+				let dimage:egret.Bitmap = this.dieimages.pop();				
+				if(this.contains(dimage)){
+					this.removeChild(dimage);
+				}				
+			}
 		}
 
 		private preCreatedInstance():void {
@@ -311,12 +332,15 @@ module game {
                     enemyAir = this.enemyAirfights[j];
                     if(game.util.GameUtil.hitTest(bullet,enemyAir)) {//我方子弹与敌方飞机有碰撞
                         enemyAir.delBlood(2);//敌方飞机掉血
-						enemyAir.bloodBarChange();//血条减少
+						enemyAir.bloodBarChange();//血条减少						
                         if(delBullets.indexOf(bullet) == -1){//记录我方该颗子弹,以备后面删除
 							delBullets.push(bullet);
 						}                            
 						if(enemyAir.getBlood() <= 0 && delFighters.indexOf(enemyAir) == -1){//敌方飞机已经没血,记录该敌方飞机,以备后面删除
 							delFighters.push(enemyAir);
+							/**敌机死亡发出音效 */
+							let dieMusic:egret.Sound = RES.getRes("effcet_enemydie_mp3");
+							dieMusic.play(0,1);
 						}                            
                     }
                 }
@@ -363,22 +387,30 @@ module game {
                 }
                 this.myScore += delFighters.length;
                 while(delFighters.length>0) {
-                    enemyAir = delFighters.pop();
-					enemyAir.resetBlood(10);					
+                    enemyAir = delFighters.pop();									
                     enemyAir.stopFire();       
-					//console.log("开始删除敌方飞机...");  
-					if(this.contains(enemyAir)){           
+					//console.log("开始删除敌方飞机..."); 
+					let dieimage:egret.Bitmap; 
+					let dieimageX =  enemyAir.x;
+					let dieimageY =  enemyAir.y;
+					if(this.contains(enemyAir)){						         
                     	this.removeChild(enemyAir);
+						dieimage = game.util.GameUtil.createBitmapByName("enemydie_png");
+						dieimage.x = dieimageX;
+						dieimage.y = dieimageY;
+						this.addChild(dieimage);
+						this.dieimages.push(dieimage);
 					}
                     this.enemyAirfights.splice(this.enemyAirfights.indexOf(enemyAir),1);
                     game.airfight.Airfight.reclaim(game.airfight.Airfight.TYPE_ENEMY_AIRFIGHT,enemyAir);
+					
                 }
             }
         }		
 
 		/**游戏结束*/
         private gameStop():void{
-            //this.addChild(this.btnStart);
+            this.bgMusicChannel.stop();
             this.bg.pause();
             this.removeEventListener(egret.Event.ENTER_FRAME,this.gameViewUpdate,this);
 			this.removeEventListener(egret.TouchEvent.TOUCH_MOVE,this.touchHandler,this);
