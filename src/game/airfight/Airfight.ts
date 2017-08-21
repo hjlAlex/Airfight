@@ -131,7 +131,7 @@ module game.airfight {
 				airName = "enemy_aifight_png";
 			}
             let air:game.airfight.Airfight;
-            if(cacheObj.length > 0) {
+            if(cacheObj.length > 0) {			
                 air = cacheObj.pop();
             } else {
 				let myAirBitmap:egret.Bitmap = game.util.GameUtil.createBitmapByName(airName);
