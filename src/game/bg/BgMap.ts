@@ -18,6 +18,8 @@ module game.bg {
         private textureHeight:number;
         /**控制滚动速度*/
         private speed:number = 2;
+		/**游戏结束时的背景 */
+		private deathBg:egret.Bitmap;
 
 		public constructor() {
 			super();
@@ -35,7 +37,7 @@ module game.bg {
 			this.stageH = this.stage.stageHeight;
 
 			/**实例化数组 */
-			this.bgArry = [];
+			this.bgArry = [];			
 
 			let temp: egret.Texture = RES.getRes("bg_jpg");//背景纹理类
 			this.textureHeight = temp.textureHeight;//该纹理类的纹理高度
@@ -44,7 +46,7 @@ module game.bg {
 			this.rowCount = Math.ceil( this.stageH / this.textureHeight) + 1;
 
 			for(let i: number = 0;i < this.rowCount;i++) {
-				let bgBmp: egret.Bitmap = game.util.GameUtil.createBitmapByName("bg_jpg");
+				let bgBmp: egret.Bitmap = game.util.GameUtil.createBitmapByName("bg_jpg");				
 				bgBmp.y = -1 * (this.textureHeight * (this.rowCount-i) - this.stageH);				
 				this.addChild(bgBmp);				
 				this.bgArry.push(bgBmp);            
@@ -65,6 +67,12 @@ module game.bg {
 
 		/**开始滚动*/
         public start():void {
+			if(null !=this.deathBg && this.contains(this.deathBg)){
+				for(let i = 0;i < this.bgArry.length;i++){
+					this.bgArry[i].visible = true;
+				}
+				this.removeChild(this.deathBg);
+			}
             this.removeEventListener(egret.Event.ENTER_FRAME,this.enterFrameHandler,this);
             this.addEventListener(egret.Event.ENTER_FRAME,this.enterFrameHandler,this);
         } 
@@ -73,5 +81,19 @@ module game.bg {
         public pause():void {
             this.removeEventListener(egret.Event.ENTER_FRAME,this.enterFrameHandler,this);
         }
+
+		public gameOver():void{
+			this.removeEventListener(egret.Event.ENTER_FRAME,this.enterFrameHandler,this);
+			if(null == this.deathBg){
+				//游戏结束时的背景
+				this.deathBg = new egret.Bitmap(RES.getRes("bgGrey_png"));
+			}
+			if(!this.contains(this.deathBg)){
+				this.addChildAt(this.deathBg,this.numChildren - 1);
+				for(let i = 0;i < this.bgArry.length;i++){
+					this.bgArry[i].visible = false;
+				}
+			}
+		}
 	}
 }

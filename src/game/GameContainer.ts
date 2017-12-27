@@ -37,6 +37,9 @@ module game {
         /**触发创建敌机的间隔*/
         private enemyAirfightsTimer:egret.Timer = new egret.Timer(1000);
 
+		/**触发创建buff的间隔*/
+        private buffTimer:egret.Timer = new egret.Timer(30000);
+
         /**敌人的子弹*/
         public enemyBullets:egret.Bitmap[] = [];
 
@@ -50,6 +53,9 @@ module game {
 
         /**记录上次启动时间*/
         private _lastTime:number;
+
+		/**生命buff集合记录(方便进行运动) */
+		private bloodBuff:egret.Bitmap[] = [];		
 
 		public constructor() {
 			super();
@@ -118,12 +124,16 @@ module game {
 			this.bg.start();
 			/**重置我方飞机生命 */
 			this.myAirfight.resetBlood(10);
-			
+			this.myAirfight.resetLife();
 			/**启动定时发射子弹 */
 			this.myAirfight.fire();
 			/**定时创建敌方飞机 */
 			this.enemyAirfightsTimer.addEventListener(egret.TimerEvent.TIMER,this.createEnemyAir,this);
             this.enemyAirfightsTimer.start();
+
+			/**定时创建buff */
+			this.buffTimer.addEventListener(egret.TimerEvent.TIMER,this.createBuff,this);
+            this.buffTimer.start();
 
 			/**移动我方飞机 */
 			this.myAirfight.touchEnabled = true;
@@ -172,7 +182,7 @@ module game {
             let bullet:egret.Bitmap;
             let myBulletsCount:number = this.myBullets.length;
             for(let i:number = 0;i < myBulletsCount;i++){
-                 bullet = this.myBullets[i];				 
+                bullet = this.myBullets[i];				 
 				if(bullet.y < (-bullet.height)){
 					if(this.contains(bullet)){
 						this.removeChild(bullet);
@@ -229,6 +239,24 @@ module game {
                
             }
 
+			//生命buff运动
+            let buffCount:number = this.bloodBuff.length;
+			let buff:egret.Bitmap;
+            for(let i:number = 0;i < buffCount;i++){
+                buff = this.bloodBuff[i];
+                if(buff.y > this.stageH){
+					if(this.contains(buff)){
+						this.removeChild(buff);
+						game.buff.BuffBlood.reclaim(buff);
+						this.bloodBuff.splice(i,1);
+						i--;
+						buffCount--;//数组长度已经改变
+					}
+                }                
+                buff.y += 2 * speedOffset;
+               
+            }
+
 			//console.log("敌方子弹size:"+this.enemyBullets.length);
 			//console.log("敌方子弹对象池size:"+game.bullet.Bullet.getBulletPoolSize(game.bullet.Bullet.TYPE_ENEMY_BULLET));
 
@@ -259,9 +287,17 @@ module game {
 			while(this.dieimages.length>0) {
 				let dimage:egret.Bitmap = this.dieimages.pop();				
 				if(this.contains(dimage)){
-					this.removeChild(dimage);
+					this.removeChild(dimage);					
 				}				
 			}
+		}
+
+		private createBuff():void {
+			let buff:egret.Bitmap = game.buff.BuffBlood.produce();
+			buff.x = Math.random()*(this.stageW-buff.width);
+            buff.y = -buff.height-Math.random()*300;           
+			this.bloodBuff.push(buff);
+            this.addChild(buff); 			    
 		}
 
 		private preCreatedInstance():void {
@@ -295,6 +331,18 @@ module game {
 				enemyAir = enemyAirPool.pop();
 				game.airfight.Airfight.reclaim(game.airfight.Airfight.TYPE_ENEMY_AIRFIGHT,enemyAir);
 			}
+
+
+			let buffPool:egret.Bitmap[] = [];
+			let buff:egret.Bitmap;
+			for(let i:number = 0;i < 10; i++){
+				buff = game.buff.BuffBlood.produce();
+				buffPool.push(buff);//预先生产10个buff,然后记录下来
+			}
+			for(let i:number = 0;i < 10; i++){//把上面10个buff,回收到buff对象缓存池中
+				buff = buffPool.pop();
+				game.buff.BuffBlood.reclaim(buff);
+			}
 		}
 
 		/**游戏碰撞检测*/
@@ -308,7 +356,8 @@ module game {
             //将需消失的子弹和飞机记录
             let delBullets:egret.Bitmap[] = [];
             let delFighters:game.airfight.Airfight[] = [];
-
+			/**需要删除的生命buff */
+			let delBuff:egret.Bitmap[] = [];
 			//新增两方子弹可以互相消灭
 			for(let i:number = 0;i < myBulletsCount;i++) {
                 bullet = this.myBullets[i];//我方子弹
@@ -331,8 +380,7 @@ module game {
                 for(let j:number = 0;j < enemyAirCount;j++) {
                     enemyAir = this.enemyAirfights[j];
                     if(game.util.GameUtil.hitTest(bullet,enemyAir)) {//我方子弹与敌方飞机有碰撞
-                        enemyAir.delBlood(2);//敌方飞机掉血
-						enemyAir.bloodBarChange();//血条减少						
+                        enemyAir.delBlood(2);//敌方飞机掉血										
                         if(delBullets.indexOf(bullet) == -1){//记录我方该颗子弹,以备后面删除
 							delBullets.push(bullet);
 						}                            
@@ -352,9 +400,8 @@ module game {
                     this.myAirfight.delBlood(1);
                     if(delBullets.indexOf(bullet) == -1){//记录敌方该颗子弹,以备后面删除
 						delBullets.push(bullet);
-					} 			
-					//生命血条变化
-					this.myAirfight.bloodBarChange();
+					} 	
+					
                 }
             }
             //敌机的撞击可以消灭我
@@ -368,8 +415,30 @@ module game {
 					} 
                 }
             }
+
+			//新增buff生命加成
+			let buffCount = this.bloodBuff.length;
+			let buff:egret.Bitmap;
+            for(let i:number = 0;i < buffCount;i++) {
+                buff = this.bloodBuff[i];
+                if(game.util.GameUtil.hitTest(buff,this.myAirfight)) {//生命与我方飞机有碰撞
+                    this.myAirfight.addBuff();
+                    //buff与我方飞机发生碰撞后，buff消失
+					if(delBuff.indexOf(buff) == -1){
+						delBuff.push(buff);
+					}		
+					
+                }
+            }
+
 			if(this.myAirfight.getBlood() <= 0) {//游戏结束
-                this.gameStop();
+				if(this.myAirfight.getLife() <= 0){
+					this.gameStop();
+				}else{
+					this.myAirfight.delBuff();
+					this.myAirfight.resetBlood(10);
+				}
+                
             } else {
                 while(delBullets.length>0) {
                     bullet = delBullets.pop();
@@ -405,18 +474,27 @@ module game {
                     game.airfight.Airfight.reclaim(game.airfight.Airfight.TYPE_ENEMY_AIRFIGHT,enemyAir);
 					
                 }
+				//buff清除回收
+				while(delBuff.length>0) {
+                    buff = delBuff.pop();					
+					if(this.contains(buff)){
+						this.removeChild(buff);
+					}
+                    game.buff.BuffBlood.reclaim(buff);
+                }
             }
         }		
 
 		/**游戏结束*/
         private gameStop():void{
             this.bgMusicChannel.stop();
-            this.bg.pause();
+            this.bg.gameOver();
             this.removeEventListener(egret.Event.ENTER_FRAME,this.gameViewUpdate,this);
 			this.removeEventListener(egret.TouchEvent.TOUCH_MOVE,this.touchHandler,this);
 			this.myAirfight.removeEventListener(egret.TouchEvent.TOUCH_BEGIN,this.startMove,this);            
             this.myAirfight.stopFire(); 
             this.enemyAirfightsTimer.stop();
+			this.buffTimer.stop();
             //清理子弹            
             let bullet:egret.Bitmap;
             while(this.myBullets.length>0) {
@@ -446,7 +524,7 @@ module game {
             //显示成绩
             this.scorePanel.showScore(this.myScore);
             this.scorePanel.x = (this.stageW-this.scorePanel.width)/2;
-            this.scorePanel.y = 100;
+            this.scorePanel.y = (this.stageH-this.scorePanel.height)/2;;
             this.addChild(this.scorePanel);
         }
 	}

@@ -26,24 +26,31 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-
-class LoadingUI extends egret.Sprite {
-
-     private loadingProgress:LoadingProgress;
-     private loadingTxt:egret.TextField;
-
-    public constructor(width:number) {
-        super();
-        this.loadingProgress = new LoadingProgress(width);
-        this.addChild(this.loadingProgress);
-        this.loadingTxt = new egret.TextField();
-        this.loadingTxt.text = "Loading...";
-        this.loadingTxt.x = (this.width - this.loadingTxt.width) * 0.5;
-        this.loadingTxt.y = (this.height - this.loadingTxt.height) * 0.5;
-        this.addChild(this.loadingTxt);
-    }   
-
-    public setProgress(current:number, total:number):void {
-        this.loadingProgress.setProgress(current,total);
+var __reflect = (this && this.__reflect) || function (p, c, t) {
+    p.__class__ = c, t ? t.push(c) : t = [c], p.__types__ = p.__types__ ? t.concat(p.__types__) : t;
+};
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var LoadingUI = (function (_super) {
+    __extends(LoadingUI, _super);
+    function LoadingUI(width) {
+        var _this = _super.call(this) || this;
+        _this.loadingProgress = new LoadingProgress(width);
+        _this.addChild(_this.loadingProgress);
+        _this.loadingTxt = new egret.TextField();
+        _this.loadingTxt.text = "Loading...";
+        _this.loadingTxt.x = (_this.width - _this.loadingTxt.width) * 0.5;
+        _this.loadingTxt.y = (_this.height - _this.loadingTxt.height) * 0.5;
+        _this.addChild(_this.loadingTxt);
+        return _this;
     }
-}
+    LoadingUI.prototype.setProgress = function (current, total) {
+        this.loadingProgress.setProgress(current, total);
+    };
+    return LoadingUI;
+}(egret.Sprite));
+__reflect(LoadingUI.prototype, "LoadingUI");
+//# sourceMappingURL=LoadingUI.js.map

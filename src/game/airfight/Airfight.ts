@@ -25,7 +25,10 @@ module game.airfight {
 		private bloodBar:game.airfight.BloodBar;
 		//可视为飞机类型
 		private airType:number;	
-
+		//生命次数
+		private lifeTime:number = 3;
+		//生命buff数组
+		private lifeBuff:egret.Bitmap[] = [];
 		
 		public constructor(airBmp:egret.Bitmap,fireDelay:number,airType:number) {
 			super();
@@ -111,13 +114,67 @@ module game.airfight {
 		/**Hp减少 */
 		public delBlood(blood:number):void {
 			this.blood = this.blood - blood;
+			this.bloodBarDel();
+		}
+
+		/**生命增加 */
+		public addBuff():void {
+			this.lifeTime = this.lifeTime + 1;
+			if(this.lifeTime > 3){
+				this.lifeTime = 3;
+				return;
+			}
+			let buff:egret.Bitmap = game.buff.BuffBlood.produce();
+			this.lifeBuff.push(buff);
+			let gameContainer:game.GameContainer = <game.GameContainer>this.parent;
+			for(let i = 0;i < this.lifeBuff.length;i++){
+				let buff:egret.Bitmap = this.lifeBuff[i];
+				buff.x = 0;
+				buff.y = 580 + i * (15 + buff.height);
+				if(!gameContainer.contains(buff)){
+					gameContainer.addChild(buff);											
+				}
+			}
+		}
+
+		/**生命减少 */
+		public delBuff():void {
+			this.lifeTime = this.lifeTime - 1;			
+			let buff:egret.Bitmap = this.lifeBuff.pop();
+			game.buff.BuffBlood.reclaim(buff);
+			let gameContainer:game.GameContainer = <game.GameContainer>this.parent;
+			if(gameContainer.contains(buff)){
+				gameContainer.removeChild(buff);											
+			}
+
 		}
 
 		public resetBlood(blood:number){
 			this.blood = blood;
 			this.fullBlood = blood;//该值初始化后不能改变			
-			this.bloodBar.reset();	
-			
+			this.bloodBar.reset();			
+		}
+		
+		public resetLife():void{
+			let gameContainer:game.GameContainer = <game.GameContainer>this.parent;
+			if(this.lifeBuff.length != 0){
+				for(let i = 0;i < this.lifeBuff.length;i++){
+					let buff:egret.Bitmap = this.lifeBuff.pop();
+					if(gameContainer.contains(buff)){
+						gameContainer.removeChild(buff);
+						game.buff.BuffBlood.reclaim(buff);						
+					}
+				}
+
+			}
+			this.lifeTime = 3;
+			for(let i = 0;i < 3;i++){
+				let buff:egret.Bitmap = game.buff.BuffBlood.produce();
+				buff.x = 0;
+				buff.y = 580 + i * (15 + buff.height);
+				gameContainer.addChild(buff);
+				this.lifeBuff.push(buff);
+			}
 		}
 
 		public getFullBlood():number {
@@ -129,8 +186,16 @@ module game.airfight {
 			return this.blood;
 		}
 
-		public bloodBarChange():void{
-			this.bloodBar.bloodMove(this.fullBlood);
+		/**获取生命次数 */
+		public getLife():number {
+			return this.lifeTime;
+		}
+
+		private bloodBarDel():void{
+			this.bloodBar.bloodMove(this.fullBlood,"del");
+		}
+		private bloodBarAdd():void{
+			this.bloodBar.bloodMove(this.fullBlood,"add");
 		}
 		/**生产*/
         public static produce(airType:number,fireDelay:number):game.airfight.Airfight {	

@@ -28,7 +28,7 @@ module game.airfight {
 			this.btnRestart.addEventListener(egret.TouchEvent.TOUCH_TAP,this.restartGame,this);
         }
 
-		private restartGame():void {
+		private restartGame():void {           
 			let gameContainer:game.GameContainer = <game.GameContainer>this.parent;
 			gameContainer.gameStart();
 		}

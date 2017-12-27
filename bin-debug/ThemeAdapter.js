@@ -26,24 +26,33 @@
 //  EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //////////////////////////////////////////////////////////////////////////////////////
-
-class LoadingUI extends egret.Sprite {
-
-     private loadingProgress:LoadingProgress;
-     private loadingTxt:egret.TextField;
-
-    public constructor(width:number) {
-        super();
-        this.loadingProgress = new LoadingProgress(width);
-        this.addChild(this.loadingProgress);
-        this.loadingTxt = new egret.TextField();
-        this.loadingTxt.text = "Loading...";
-        this.loadingTxt.x = (this.width - this.loadingTxt.width) * 0.5;
-        this.loadingTxt.y = (this.height - this.loadingTxt.height) * 0.5;
-        this.addChild(this.loadingTxt);
-    }   
-
-    public setProgress(current:number, total:number):void {
-        this.loadingProgress.setProgress(current,total);
+var __reflect = (this && this.__reflect) || function (p, c, t) {
+    p.__class__ = c, t ? t.push(c) : t = [c], p.__types__ = p.__types__ ? t.concat(p.__types__) : t;
+};
+var ThemeAdapter = (function () {
+    function ThemeAdapter() {
     }
-}
+    /**
+     * 解析主题
+     * @param url 待解析的主题url
+     * @param compFunc 解析完成回调函数，示例：compFunc(e:egret.Event):void;
+     * @param errorFunc 解析失败回调函数，示例：errorFunc():void;
+     * @param thisObject 回调的this引用
+     */
+    ThemeAdapter.prototype.getTheme = function (url, compFunc, errorFunc, thisObject) {
+        function onGetRes(e) {
+            compFunc.call(thisObject, e);
+        }
+        function onError(e) {
+            if (e.resItem.url == url) {
+                RES.removeEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, onError, null);
+                errorFunc.call(thisObject);
+            }
+        }
+        RES.addEventListener(RES.ResourceEvent.ITEM_LOAD_ERROR, onError, null);
+        RES.getResByUrl(url, onGetRes, this, RES.ResourceItem.TYPE_TEXT);
+    };
+    return ThemeAdapter;
+}());
+__reflect(ThemeAdapter.prototype, "ThemeAdapter", ["eui.IThemeAdapter"]);
+//# sourceMappingURL=ThemeAdapter.js.map
